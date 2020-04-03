@@ -5,6 +5,8 @@ platform :ios, '9.0'
 target 'ADCategories_Example' do
   pod 'ADCategories', :path => '../'
 
+  pod 'MBProgressHUD'
+  
   target 'ADCategories_Tests' do
     inherit! :search_paths
 
