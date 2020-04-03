@@ -1,0 +1,71 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+platform :ios do
+
+	# 创建航道
+	# 使用航道 : fastlane ADManagerLibLane tag: target:
+	desc "自动发布Pods版本"
+	lane :JSManagerLibLane do |options|
+
+		# 参数
+		tagName = options[:tag]
+		targetName = options[:target]
+		commitMessage = options[:commit]
+
+		# 具体这个巷道上面执行哪些行为
+		
+		# 1. pod install
+		cocoapods(clean: true, podfile: "./Example/Podfile")
+
+		# 2. 提交代码
+		# git add .
+		git_add(path: ".")
+		# git commit -m 'xxx'
+		if commitMessage.length > 0
+			git_commit(path: ".", message: "#{commitMessage}")
+		else
+			git_commit(path: ".", message: "版本升级维护")
+		end
+		
+		# git push origin master
+		push_to_git_remote(force: true)
+
+		# 3. 打标签之前, 先验证标签是否存在
+		# 如果存在, 应先删除本地和远程标签
+		# if 判断标签是否存在
+		# 	执行 `删除本地/远程标签` Action
+		# end
+		if git_tag_exists(tag: tagName)
+		  UI.message("发现tag:#{tagName} 已经存在, 即将执行, 删除动作 🚀")
+		  remove_tag(tag: tagName)
+		end
+
+		# 4. 打标签 
+		# git tag 标签名称
+		add_git_tag(tag: tagName)
+		# git push --tags
+		push_git_tags
+
+		# 4. 上传描述文件
+		# pod spec lint
+		# pod_lib_lint(allow_warnings: true)
+		# pod repo push xxx.podspec
+		pod_push(path: "#{targetName}.podspec", allow_warnings: true) 
+	
+	end
+end

@@ -1,0 +1,6 @@
+framework module ADCategories {
+  umbrella header "ADCategories-umbrella.h"
+
+  export *
+  module * { export * }
+}
